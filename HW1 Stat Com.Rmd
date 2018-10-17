@@ -1,0 +1,334 @@
+---
+title: "Statistical Computing HW1"
+author: "Zhen Dai"
+date: "October 15, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+##Section 4.1.1:
+##Ex2:
+##(a)
+Fibo = function(n){
+  x = c()
+  x[1] = 1
+  x[2] = 1
+  for (i in 3:n){
+    x[i] = x[i-1] + x[i-2]
+  }
+  return(x)
+}
+
+a = Fibo(30)
+b = a[1:29]
+a = a[2:30]
+ratio = a/b
+ratio
+"The sequence appears to be converging."
+
+##(b)
+golden_ratio = (1+sqrt(5))/2
+golden_ratio
+diff = ratio - golden_ratio
+diff
+"As the sequence moves along, the ratio between two consecutive Fibonacci numbers becomes closer and closer to the golden ratio. The ratio sequence will eventually converge to the golden ratio. This can either be proved by mathematical induction or by solving the quadratic equation corresponding to the recurrence equation x^2-x-1 = 0."
+
+##Ex3:
+##(a)
+"The answer should be 1+2+3+4+5 = 15."
+answer = 0
+for (j in 1:5) answer = answer +j
+answer
+
+##(b)
+"The answer shoud be (1,2,3,4,5)."
+answer = NULL
+for (j in 1:5) answer = c(answer, j)
+answer
+
+##(c)
+"The answer shoud be (0,1,2,3,4,5)."
+answer = 0
+for (j in 1:5) answer = c(answer, j)
+answer
+
+##(d)
+"The answer should be 5! = 120"
+answer = 1
+for (j in 1:5) answer = answer*j
+answer
+
+##(e)
+"The answer should be (3,21,23,6,11,15,12,22,30,24,13,29,17,26,27,3)."
+answer = 3
+for (j in 1:15) answer = c(answer, (7*answer[j]) %% 31)
+answer
+
+##Section 4.1.2:
+##Ex4:
+interest = function(P,year){
+  if (year <= 3){
+    Q = P*(1.04)^(year)
+  }
+  if (year > 3){
+    Q_1 = P*(1.04)^3
+    Q = P*(1.05)^(year-3) + Q_1
+  }
+  revenue = Q - P
+  return(revenue)
+}
+
+##Ex5:
+mortage = function(n,P,open){
+  if (open){
+    i = 0.005
+  }
+  else{
+    i = 0.004
+  }
+  R = P*i/(1 - (1+i)^(-n))
+  return(R)
+}
+
+##Section 4.1.3:
+##Ex2:
+Fibonacci = c(1,1)
+while (Fibonacci[length(Fibonacci)]+Fibonacci[length(Fibonacci)-1] < 300){
+  Fibonacci = c(Fibonacci, Fibonacci[length(Fibonacci)-1]+Fibonacci[length(Fibonacci)])
+}
+
+##Ex4:
+h = function(x) {(1 - (1+x)^-20)/19}
+fixpoint = function(guess){
+  guess1 = guess
+  guess2 = h(guess1)
+  while (abs(guess1 - guess2)>=0.000001){
+    guess1 = guess2
+    guess2 = h(guess2)
+  }
+  return(guess2)
+}
+fixpoint(0.006)
+guess_vec = seq(from = 0.001, to = 0.01, by = 0.001)
+for (i in guess_vec) {print(fixpoint(i))}
+
+##Ex5:
+fixpoint_modified = function(guess){
+  guess1 = guess
+  guess2 = h(guess1)
+  i = 1
+  while (abs(guess1 - guess2)>=0.000001){
+    guess1 = guess2
+    guess2 = h(guess2)
+    i = i+1
+  }
+  result = c(i,guess2)
+  return(result)
+}
+fixpoint_modified(0.006)
+
+##Section:4.1.5:
+##Ex2:
+##(b)
+"For any number m less than or equal to n that are not prime, one of its prime factor must be less than or equal to squart root n. Otherwise, if all prime factors of m are greater than squar root n, then take the product of two of them would imply that m is greater than n, a contradiction. Thus, as long as the p is greater than or equal to squar root n, all composite numbers less than or equal to n have already been removed."
+
+##(c)
+Eratosthenes = function(n){
+  if (n >= 2) {
+    sieve = seq(2,n)
+    primes = c()
+    while(length(sieve > 0)){
+      p = sieve[1]
+      if (p >= sqrt(n)) {
+        primes = c(primes, sieve)
+        break
+      }
+      else{
+        primes = c(primes, p)
+        sieve = sieve[(sieve %% p) != 0]
+      }
+    }
+    return(primes)
+  }
+  else{
+    stop("Input value of n should be at least 2.")
+  }
+}
+
+Eratosthenes(100)
+
+##Section 4.2.1:
+##Ex2:
+##(a)
+compound.interest = function(P,i.r,n){
+  a = P*(1+i.r)^n
+  return(a)
+}
+##(b)
+compound.interest(P = 1000, i.r = 0.01, n = 30)
+
+##Ex3:
+#The user-supplied function is f. We know that the function has a root between end1 and end2. Also, f is greater than zero at one point and less than zero at the other. We want to find a zero of f with a tolerated error of error.
+zero = function(f,end1,end2,error){
+  x = end1
+  y = end2
+  sign = f(x) >= f(y)
+  if(x==y){return(x)}
+  if(abs(f(x)) <= error){return(x)}
+  if(abs(f(y)) <= error){return(y)}
+  z = (x+y)/2
+  d = (f(z)>=0)
+  if(d == sign){
+    return(zero(f, end1 = z, end2, error))
+  }
+  else{
+    return(zero(f, end1, end2 = z, error))
+  }
+  
+}
+
+test_fun = function(x){x^3}
+a_1 = -1
+a_2 = 10
+zero(f = test_fun, end1 = a_1, end2 = a_2, error=0.000000001)
+
+##Section 4.4.1:
+##Ex1:
+mergesort = function(x, decreasing){
+  len = length(x)
+  if (len < 2) {return(x)}
+  y = x[1:as.integer(len/2)]
+  z = x[as.integer(len/2 + 1):len]
+  y = mergesort(y, decreasing)
+  z = mergesort(z, decreasing)
+  result = c()
+  if (!decreasing) {
+    while (min(length(y), length(z)) > 0){
+      if (y[1] < z[1]) {
+        result = c(result, y[1])
+        y = y[-1]
+      }
+      else{
+        result = c(result, z[1])
+        z = z[-1]
+      }
+    }
+    if (length(y) > 0){
+      result = c(result,y)
+    }
+    else{
+      result = c(result,z)
+    }
+    return(result)
+  }
+  else{
+    while (min(length(y), length(z)) > 0){
+      if (y[1] > z[1]) {
+        result = c(result, y[1])
+        y = y[-1]
+      }
+      else{
+        result = c(result, z[1])
+        z = z[-1]
+      }
+    }
+    if (length(y) > 0){
+      result = c(result,y)
+    }
+    else{
+      result = c(result,z)
+    }
+    return(result)
+  }
+}
+x = c(12,3,52,1,353,4,5)
+mergesort(x, decreasing = TRUE)
+mergesort(x, decreasing = FALSE)
+
+#Ex:2
+##(a)
+#f and g are expressions.
+Newton = function(x_0, y_0, tolerance, f, g){
+  x = x_0
+  y = y_0
+  if (abs(eval(f)) >= tolerance || abs(eval(g)) >= tolerance){
+    f_x = eval(D(f, "x"))
+    f_y = eval(D(f, "y"))
+    g_x = eval(D(g, "x"))
+    g_y = eval(D(g, "y"))
+    f_1 = eval(f)
+    g_1 = eval(g)
+    d_1 = f_x*g_y - f_y*g_x
+    x_n = x - (g_y * f_1 - f_y * g_1)/d_1
+    y_n = y - (f_x * g_1 - g_x * f_1)/d_1
+    return(Newton(x_0 = x_n, y_0 = y_n, tolerance, f, g))
+  }
+  else {
+    return(c(x,y))
+  }
+}
+
+##(b)
+sol = Newton(x_0 = 0.9, y_0 = -0.9, tolerance = 0.00001, f = expression(x+y), g = expression(x^2 + 2*y^2 -2))
+
+sol
+sqrt(2/3)
+"The analytic solution should be sqrt(2/3) and -sqrt(2/3), which is very close to the value we get using Newton's method."
+
+##Chapter 4:
+##The coefficient vector of a polynomial is ordered as (c_0,c_1,c_2,c_4,...,c_n).
+##Ex1:
+directpoly = function(x,P){
+  len = length(P)
+  result = rep(0, length(x))
+  for (i in 1:len){
+    result = result + P[i] * x^(i-1)
+  }
+  return(result)
+}
+directpoly(3, c(1,2,1))
+directpoly(1:10, c(4,4,1))
+
+##Ex2:
+hornerpoly = function(x,P){
+  len = length(P)
+  a = P[len]
+  a = rep(a, length(x))
+  if (len == 1){return(a)}
+  for (i in (len-1):1){
+    a = a*x + P[i]
+  }
+  return(a)
+}
+hornerpoly(3, c(1,2,1))
+hornerpoly(1:10, c(4,4,1)) #P(x) = (x+2)^2
+
+##Ex3:
+##(a)
+t_1 = system.time(directpoly(x=seq(-10, 10, length=5000000), c(1, -2, 2, 3, 4, 6, 7)))
+t_2 = system.time(hornerpoly(x=seq(-10, 10, length=5000000), c(1, -2, 2, 3, 4, 6, 7)))
+t_1
+t_2
+
+"hornerpoly is much faster than directpoly when the coefficients of the polynomial is large."
+
+##(b)
+t_3 = system.time(directpoly(x=seq(-10, 10, length=5000000), c(-3,17,2)))
+t_4 = system.time(hornerpoly(x=seq(-10, 10, length=5000000), c(-3,17,2)))
+t_3
+t_4
+
+"hornerpoly is still faster than directpoly but the difference is less significant when the coefficients of the polynomial is small."
+```
+
+
+
+
